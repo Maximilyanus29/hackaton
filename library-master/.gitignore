@@ -1,0 +1,5 @@
+.idea
+/node_modules/
+books.csv
+books.jsn
+package-lock.json

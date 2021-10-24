@@ -249,6 +249,118 @@ class SiteController extends Controller
         return true;
     }
 
+
+    public function actionGetRecomendation()
+    {
+        $id = Yii::$app->request->get('id');
+
+        Yii::$app->response->format = 'json';
+
+        $recoResult = [];
+        $historyResult = [];
+
+        if($id && (int) $id !== 0){
+
+
+
+
+
+            $history = Circulaton::find()->joinWith('cat')->where(['readerId' => $id])->all();
+
+
+
+            $arrayCategoriesInHistory=[];
+            foreach ($history as $his){
+
+                $book = $his->cat;
+                $arrayCategoriesInHistory[] = $book->rubrics;
+
+                $historyResult[] = [$book->recId, $book->title, $book->aut];
+
+            }
+
+
+            $recomended = Cat::find()->limit(5)->where(['like', 'rubrics', $arrayCategoriesInHistory])->orderBy('recId DESC')->all();
+
+
+            foreach ($recomended as $reco){
+
+
+                $recoResult[] = [$reco->recId, $reco->title, $reco->aut];
+
+            }
+
+
+
+            return [
+                'recommendations' => $recoResult,
+                'history' => $historyResult,
+            ];
+
+
+
+        }else{
+
+
+            $recomended = Cat::find()->limit(5)->orderBy('recId DESC')->all();
+
+
+
+
+            foreach ($recomended as $reco){
+                $recoResult[] = [$reco->recId, $reco->title, $reco->aut];
+            }
+
+            return [
+                'recommendations' => $recoResult
+            ];
+
+
+        }
+
+
+
+
+        /*
+         *
+         *
+{
+"recommendations": [
+{
+"id": 789,
+"title": "Красная шапочка",
+"author": "Перро"
+},
+{
+"id": 101112,
+"title": "Сказки",
+"author": "народ"
+},
+...
+],
+"history": [
+{
+"id": 123,
+"title": "Незнайка на Луне",
+"author": "Носов"
+},
+{
+"id": 456,
+"title": "Золотой ключик",
+"author": "Толстой"
+},
+...
+]
+
+        */
+
+
+
+
+
+
+    }
+
     /*FAVORIT BLOCK*/
 
 }

@@ -1,18 +1,41 @@
 <?php
 
 use common\models\Cat;
+use common\models\Circulaton;
+use common\models\User;
+
+$user = User::findOne(Yii::$app->session->get('auth'));
 
 
-if(!Yii::$app->user->isGuest){
-    // Запрос c id юзера
+if(!$user){
+    $recomended = Cat::find()->limit(5)->orderBy('recId DESC')->all();
+
 }else{
-    // Запрос с id = 0;
+
+    $history = Circulaton::find()->joinWith('cat')->where(['readerId' => $user->id])->limit(5)->all();
+
+
+    $arrayCategoriesInHistory=[];
+    foreach ($history as $his){
+        $book = $his->cat;
+        $arrayCategoriesInHistory[] = $book->rubrics;
+
+
+    }
+
+
+    $recomended = Cat::find()->limit(5)->where(['like', 'rubrics', $arrayCategoriesInHistory])->orderBy('recId DESC')->all();
+
 }
 // Получаем ответ json;
 
 // и тащим рекомендации из базы;
 //        $recomended = Cat::find()->where(['recId' => [1,2,3]])->limit(5)->all();
-$recomended = Cat::find()->limit(5)->orderBy('recId DESC')->all();
+
+
+
+
+
 
 $storage = Yii::$app->session->get('favorite', []);
 
